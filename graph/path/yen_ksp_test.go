@@ -86,7 +86,7 @@ var yenShortestPathTests = []struct {
 	{
 		name:  "bipartite small",
 		graph: func() graph.WeightedEdgeAdder { return simple.NewWeightedDirectedGraph(0, math.Inf(1)) },
-		edges: bipartite(5),
+		edges: bipartite(5, 3, 0),
 		query: simple.Edge{F: simple.Node(-1), T: simple.Node(1)},
 		k:     10,
 		wantPaths: [][]int64{
@@ -100,7 +100,7 @@ var yenShortestPathTests = []struct {
 	{
 		name:  "bipartite parity",
 		graph: func() graph.WeightedEdgeAdder { return simple.NewWeightedDirectedGraph(0, math.Inf(1)) },
-		edges: bipartite(5),
+		edges: bipartite(5, 3, 0),
 		query: simple.Edge{F: simple.Node(-1), T: simple.Node(1)},
 		k:     5,
 		wantPaths: [][]int64{
@@ -114,20 +114,49 @@ var yenShortestPathTests = []struct {
 	{
 		name:    "bipartite large",
 		graph:   func() graph.WeightedEdgeAdder { return simple.NewWeightedDirectedGraph(0, math.Inf(1)) },
-		edges:   bipartite(10),
+		edges:   bipartite(10, 3, 0),
 		query:   simple.Edge{F: simple.Node(-1), T: simple.Node(1)},
 		k:       5,
 		relaxed: true,
 	},
+	{
+		name:  "bipartite inc",
+		graph: func() graph.WeightedEdgeAdder { return simple.NewWeightedDirectedGraph(0, math.Inf(1)) },
+		edges: bipartite(5, 10, 1),
+		query: simple.Edge{F: simple.Node(-1), T: simple.Node(1)},
+		k:     5,
+		wantPaths: [][]int64{
+			{-1, 2, 1},
+			{-1, 3, 1},
+			{-1, 4, 1},
+			{-1, 5, 1},
+			{-1, 6, 1},
+		},
+	},
+	{
+		name:  "bipartite dec",
+		graph: func() graph.WeightedEdgeAdder { return simple.NewWeightedDirectedGraph(0, math.Inf(1)) },
+		edges: bipartite(5, 10, -1),
+		query: simple.Edge{F: simple.Node(-1), T: simple.Node(1)},
+		k:     5,
+		wantPaths: [][]int64{
+			{-1, 6, 1},
+			{-1, 5, 1},
+			{-1, 4, 1},
+			{-1, 3, 1},
+			{-1, 2, 1},
+		},
+	},
 }
 
-func bipartite(n int) []simple.WeightedEdge {
+func bipartite(n int, weight, inc float64) []simple.WeightedEdge {
 	var edges []simple.WeightedEdge
 	for i := 2; i < n+2; i++ {
 		edges = append(edges,
-			simple.WeightedEdge{F: simple.Node(-1), T: simple.Node(i), W: 3},
-			simple.WeightedEdge{F: simple.Node(i), T: simple.Node(1), W: 3},
+			simple.WeightedEdge{F: simple.Node(-1), T: simple.Node(i), W: weight},
+			simple.WeightedEdge{F: simple.Node(i), T: simple.Node(1), W: weight},
 		)
+		weight += inc
 	}
 	return edges
 }
